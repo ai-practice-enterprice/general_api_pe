@@ -43,3 +43,19 @@ This is useful when running in development mode, since we can have the auto-relo
 These are the numbers of processes that uvicorn will spawn for you. It is recommended that this number is equal to the number of CPU cores.
 
 There are other flags you can use (--host, --port, etc.) but I think there is no need for an explanation, moeover you can read the `Dockerfile` which already implements a working architecture.
+
+## Testing
+
+When building a production app, it is important to implement tests to mock HTTP Requests, analyze utilities functions, etc.
+
+For this reason the directory `tests` will contain all the necessary tests. In order to run them type
+
+```bash
+(venv) > pytest
+```
+
+Pytest will load all the files that contains the keyword `test` and run all the functions that contain `test`. If you want to debug you just need to add:
+
+```bash
+(venv) > pytest -s
+```
