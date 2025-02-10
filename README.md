@@ -1,0 +1,45 @@
+## Requirements
+
+In order to run the api you need
+
+- Python 3.12 or > since latest features possible will be used
+
+## Installation
+
+> Create a virtual environment using your preferred tool I.E.
+
+```bash
+python3.12 -m venv venv
+
+# unix
+source venv/bin/activate
+
+#windows (cmd/powershell)
+.\venv\Scripts\activate
+```
+
+> Install the necessary requirements
+
+```bash
+(venv) > pip install -r requirements.txt
+```
+
+> Run the server
+
+All the environment variables are listed inside the `.env.example` file, you can load them by creating a `.env` file and push them into that file.
+
+With Docker for now it is possible specify them when running the container (`OVERRIDE_SYSTEM` needs to be set to "false").
+
+```bash
+(venv) > uvicorn main:app --reload
+```
+
+This is useful when running in development mode, since we can have the auto-reload feature. However when building/testing as if the serveer was in production mode it is better to
+
+```bash
+(venv) > uvicorn main:app --workers 4
+```
+
+These are the numbers of processes that uvicorn will spawn for you. It is recommended that this number is equal to the number of CPU cores.
+
+There are other flags you can use (--host, --port, etc.) but I think there is no need for an explanation, moeover you can read the `Dockerfile` which already implements a working architecture.
