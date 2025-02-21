@@ -44,6 +44,17 @@ These are the numbers of processes that uvicorn will spawn for you. It is recomm
 
 There are other flags you can use (--host, --port, etc.) but I think there is no need for an explanation, moeover you can read the `Dockerfile` which already implements a working architecture.
 
+## What about the routes?
+
+How can I see which routes are available and what kind of data do they request and return? That is easy you just need to go to
+
+```
+/doc
+/redoc
+```
+
+These two routes contain metadata about our application and can be also used to test that. They are based off the OpenAPI Swagger standard.
+
 ## Testing
 
 When building a production app, it is important to implement tests to mock HTTP Requests, analyze utilities functions, etc.
