@@ -59,4 +59,3 @@ Pytest will load all the files that contains the keyword `test` and run all the 
 ```bash
 (venv) > pytest -s
 ```
-a
