@@ -6,7 +6,7 @@ In order to run the api you need
 
 ## Installation
 
-> Create a virtual environment using your preferred tool I.E.
+> Create a virtual environment using your preferred tool (I.E. virtualenv, pyenv, ...)
 
 ```bash
 python3.12 -m venv venv
@@ -14,7 +14,7 @@ python3.12 -m venv venv
 # unix
 source venv/bin/activate
 
-#windows (cmd/powershell)
+# windows (cmd/powershell)
 .\venv\Scripts\activate
 ```
 
@@ -59,3 +59,4 @@ Pytest will load all the files that contains the keyword `test` and run all the 
 ```bash
 (venv) > pytest -s
 ```
+a
