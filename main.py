@@ -15,7 +15,6 @@ import routers
 
 @asynccontextmanager
 async def lifespan(_) -> AsyncIterator[None]:
-    log = logging.getLogger(__package__)
     log.info("Starting up")
     yield
     log.info("Shutting down")

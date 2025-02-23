@@ -1,4 +1,4 @@
-from .customer import Customer
+from .customer import Customer, Parcel
 
 
-__all__ = ["Customer"]
+__all__ = ["Customer", "Parcel"]

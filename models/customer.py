@@ -7,3 +7,11 @@ class Customer(BaseModel):
     email: str
     address: str
     phone: str
+
+
+class Parcel(BaseModel):
+    customer: Customer
+    tracking_number: int
+    weight: float
+    destination: str
+    recipient: str
