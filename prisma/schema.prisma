@@ -1,0 +1,79 @@
+datasource db {
+  provider  = "sqlite"
+  url       = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-py"
+}
+
+model Robot {
+    id     Int   @id @default(autoincrement())
+    name   String
+    status String
+    movements OrderMovement[]
+}
+
+model Path {
+    id     Int   @id @default(autoincrement())
+    number Int
+    description String
+    movements OrderMovement[]
+}
+
+model StorageLocation {
+    id    Int   @id @default(autoincrement())
+    name   String
+    aisle String
+    shelf String
+    orders Order[]
+}
+
+model Customer {
+    id    Int   @id @default(autoincrement())
+    name  String
+    address String
+    city String
+    orders Order[]
+}
+
+model LoadOutZone {
+    id    Int   @id @default(autoincrement())
+    name  String
+    is_available Boolean @default(true)
+    orders Order[]
+    movements OrderMovement[]
+}
+
+model Order {
+    id    Int   @id @default(autoincrement())
+    destination String
+    created_at DateTime @default(now())
+    movement OrderMovement[]
+    
+    customer_id Int
+    customer Customer @relation(fields: [customer_id], references: [id])
+
+    load_out_zone_id Int
+    load_out_zone LoadOutZone @relation(fields: [load_out_zone_id], references: [id])
+
+    storage_location StorageLocation @relation(fields: [storage_location_id], references: [id])
+    storage_location_id Int
+}
+
+model OrderMovement {
+    id   Int   @id @default(autoincrement())
+    movement_time DateTime
+
+    order_id Int
+    order Order @relation(fields: [order_id], references: [id])
+
+    load_out_zone_id Int
+    load_out_zone LoadOutZone @relation(fields: [load_out_zone_id], references: [id])
+
+    robot_id Int
+    robot Robot @relation(fields: [robot_id], references: [id])
+
+    path_id Int
+    path Path @relation(fields: [path_id], references: [id])
+}
