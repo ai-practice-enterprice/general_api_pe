@@ -3,15 +3,15 @@ from pydantic import BaseModel
 
 class Customer(BaseModel):
     name: str
+    address: str
+    city: str
     age: int
     email: str
-    address: str
-    phone: str
 
 
-class Parcel(BaseModel):
+class Package(BaseModel):
     customer: Customer
-    tracking_number: int
+    status: str
+    dimension: str
     weight: float
-    destination: str
-    recipient: str
+    destination_address: str
