@@ -9,7 +9,7 @@ def test_fake_customers(client: TestClient):
 
 
 def test_fake_parcels(client: TestClient):
-    response = client.get("/fake/parcels?limit=5&locale=nl_BE")
+    response = client.get("/fake/packages?limit=5&locale=nl_BE")
     assert response.status_code == 200
     data = response.json()
     assert len(data) == 5

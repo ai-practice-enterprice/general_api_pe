@@ -1,11 +1,12 @@
 import logging
+import random
 from fastapi import APIRouter, Query
 from faker import Faker
 from faker.config import AVAILABLE_LOCALES
 from enum import Enum
 from typing import Annotated
 
-from models import Customer, Parcel
+from models import Customer, Package
 
 
 router = APIRouter(prefix="/fake", tags=["Fake Data"])
@@ -32,13 +33,13 @@ def get_fake_data(
             age=fake.random_int(min=18, max=100),
             email=fake.email(),
             address=fake.address(),
-            phone=fake.phone_number(),
+            city=fake.city()
         )
         for _ in range(limit)
     ]
 
 
-@router.get("/parcels", response_model=list[Parcel])
+@router.get("/packages", response_model=list[Package])
 async def get_fake_parcel_data(
     limit: Annotated[int, Query(ge=1, le=100)] = 1,
     locale: Annotated[AvailableLocales, Query()] = AvailableLocales.nl_BE,  # type: ignore
@@ -49,21 +50,21 @@ async def get_fake_parcel_data(
 
     fake = Faker(locale.value)
 
-    log.info(f"Generating {limit} fake parcels with locale {locale}")
+    log.info(f"Generating {limit} fake packages with locale {locale}")
 
     return [
-        Parcel(
+        Package(
             customer=Customer(
                 name=fake.name(),
                 age=fake.random_int(min=18, max=100),
                 email=fake.email(),
                 address=fake.address(),
-                phone=fake.phone_number(),
+                city=fake.city()
             ),
-            tracking_number=fake.random_int(min=10, max=10_000),
+            dimension=f"{fake.random_int(min=1, max=100)}x{fake.random_int(min=1, max=100)}x{fake.random_int(min=1, max=100)}",
+            status=random.choice(["pending", "in_transit", "delivered"]),
             weight=fake.random_int(min=1, max=1000) + fake.random_int(min=0, max=100) / 100,
-            destination=fake.address(),
-            recipient=fake.name(),
+            destination_address=fake.address()
         )
         for _ in range(limit)
     ]
