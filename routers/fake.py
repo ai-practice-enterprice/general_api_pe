@@ -22,7 +22,7 @@ def get_fake_data(
     Get fake data for testing purposes based on the provided limit and locale.
     """
 
-    fake = Faker(locale)
+    fake = Faker(locale.value)
 
     log.info(f"Generating {limit} fake customers with locale {locale}")
 
@@ -47,7 +47,7 @@ async def get_fake_parcel_data(
     Get fake data for testing purposes based on the provided limit and locale.
     """
 
-    fake = Faker(locale)
+    fake = Faker(locale.value)
 
     log.info(f"Generating {limit} fake parcels with locale {locale}")
 
