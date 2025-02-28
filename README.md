@@ -55,6 +55,18 @@ How can I see which routes are available and what kind of data do they request a
 
 These two routes contain metadata about our application and can be also used to test that. They are based off the OpenAPI Swagger standard.
 
+## Decoding qrcodes
+
+In order to decode qrcodes you need to install (besides the usual dependencies) `pyzbar` on your machine unless when using Windows.
+
+```bash
+# macos
+brew install pyzbar
+
+# linux
+sudo apt-get install libzbar0
+```
+
 ## Testing
 
 When building a production app, it is important to implement tests to mock HTTP Requests, analyze utilities functions, etc.
