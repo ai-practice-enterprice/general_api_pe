@@ -53,6 +53,8 @@ How can I see which routes are available and what kind of data do they request a
 /redoc
 ```
 
+![Docs URL](images/image.png)
+
 These two routes contain metadata about our application and can be also used to test that. They are based off the OpenAPI Swagger standard.
 
 ## Decoding qrcodes
