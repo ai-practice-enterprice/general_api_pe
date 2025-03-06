@@ -57,9 +57,15 @@ How can I see which routes are available and what kind of data do they request a
 
 These two routes contain metadata about our application and can be also used to test that. They are based off the OpenAPI Swagger standard.
 
-## Decoding qrcodes
+## QRCodes
+
+You can both encode/decode qrcodes via file path or base64 string. By doing so you have two choices when constructing your logic and adjust it based on your needs.
 
 In order to decode qrcodes you need to install (besides the usual dependencies) `pyzbar` on your machine unless when using Windows.
+
+## Aruco Markers
+
+The same applies to aruco markers, they will be used to reference the zone and can be generated/decoded using both the file path or base64 in case you don't want to store them on the disk.
 
 ```bash
 # macos
