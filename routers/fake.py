@@ -40,7 +40,7 @@ def get_fake_data(
 
 
 @router.get("/packages", response_model=list[Package])
-async def get_fake_parcel_data(
+def get_fake_parcel_data(
     limit: Annotated[int, Query(ge=1, le=100)] = 1,
     locale: Annotated[AvailableLocales, Query()] = AvailableLocales.nl_BE,  # type: ignore
 ):
