@@ -24,9 +24,8 @@ def get_zone_info():
 
 
 @router.post("/zoneinfo", response_model=zone)
-def add_zone_info(index: int,zone: zone):
-    if index < 0 or index > len(zones):
-        raise HTTPException(status_code=400, detail="Index out of range")
+def add_zone_info(zone: zone):
+    index=zone.id
     if index < len(zones):
         zones.pop(index)
     zones.insert(index, zone)
