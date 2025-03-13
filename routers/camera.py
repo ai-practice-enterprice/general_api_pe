@@ -23,10 +23,14 @@ def get_zone_info():
     return zones
 
 
+
 @router.post("/zoneinfo", response_model=zone)
 def add_zone_info(zone: zone):
     index=zone.id
-    if index < len(zones):
-        zones.pop(index)
-    zones.insert(index, zone)
+    for i, x in enumerate(zones):
+        if x.id == zone.id:
+            zones[i] = zone
+            break
+    else:
+        zones.append(zone)
     return zone
