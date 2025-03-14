@@ -238,17 +238,17 @@ def get_fake_airlines_data(
     Get fake data for testing purposes based on the provided limit and locale.
     """
 
-    fake = Faker(locale=locale.value)
-    
+    fake = Faker(locale=locale.value) 
+    fake.add_provider(AirTravelProvider)
 
     log.info(f"Generating {limit} fake airlines with locale {locale}")
 
     return [
         Airline(
-            name="",
-            IATA_code="",
-            contact_number="",
-            headquarters_location="",
+            name=fake.airport_name(),
+            IATA_code=fake.airport_iata(),
+            contact_number=fake.phone_number(),
+            headquarters_location=fake.city(),
         )
         for _ in range(limit)
     ]
