@@ -102,7 +102,7 @@ def get_fake_locations_data(
 
     return [
         Location(
-            name=fake.random_company_acronym(),
+            name=fake.company(),
             location_type=fake.enum(LocationNames).name,
             contact_number=fake.phone_number(),
             opening_hours=f"{fake.random_int(min=6,max=12)} AM - {fake.random_int(min=1,max=9)} PM"
@@ -176,8 +176,8 @@ def get_fake_cities_data(
 
     return [
         City(
-            name=fake.city_name(),
-            postcode=fake.postal_code()
+            name=fake.city(),
+            postcode=fake.postcode()
         )
         for _ in range(limit)
     ]
