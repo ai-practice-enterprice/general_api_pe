@@ -5,7 +5,7 @@ import routers
 from typing import AsyncIterator, Annotated
 from dotenv import load_dotenv
 from contextlib import asynccontextmanager
-
+from prisma import Prisma
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import logging
@@ -13,7 +13,7 @@ from logging.handlers import TimedRotatingFileHandler
 
 # contains all URL configurations 
 from config import DB_CLIENT , ORIGINS
-
+ 
 # loads env variables (ask Lorenzo why neccessary)
 load_dotenv(override=os.getenv("OVERRIDE_SYSTEM") == "false")
 
@@ -23,11 +23,12 @@ load_dotenv(override=os.getenv("OVERRIDE_SYSTEM") == "false")
 # https://fastapi.tiangolo.com/advanced/events/#async-context-manager  
 @asynccontextmanager
 async def lifespan(_) -> AsyncIterator[None]:
+    prisma = Prisma(auto_register=True)
     log.info("Starting up")
-    await DB_CLIENT.connect()
+    await prisma.connect()
     yield
     log.info("Shutting down")
-    await DB_CLIENT.disconnect()
+    await prisma.disconnect()
 
 # Create main app ===================================================== 
 app = FastAPI(lifespan=lifespan)
