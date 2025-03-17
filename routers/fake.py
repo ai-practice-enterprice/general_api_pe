@@ -4,11 +4,9 @@ from enum import Enum
 from datetime import datetime , timedelta
 from fastapi import APIRouter, Query
 from typing import Annotated
-
 from faker import Faker
 from faker.config import AVAILABLE_LOCALES
 from faker_airtravel import AirTravelProvider 
-from faker.providers import BaseProvider
 
 # available fake models ==========================================================================
 # based upon the AD team's ERD 
@@ -20,18 +18,8 @@ from models import (
     Airplane,
     Airport,
     City,
-    Contract,
-    Country,
-    Employee,
     Flight,
-    Job,
     Location,
-    PackageMovement,
-    Payroll,
-    User,
-    Vacation,
-    Work,
-    Worker
 )
 
 # Faker configuration (providers) ==========================================================================
@@ -52,7 +40,7 @@ def get_fake_customer_data(
     locale: Annotated[AvailableLocales, Query()] = AvailableLocales.nl_BE,  # type: ignore
 ):
     """
-    Get fake data for testing purposes based on the provided limit and locale.
+    Get fake data for customers for testing purposes based on the provided limit and locale.
     """
 
     fake = Faker(locale.value)
@@ -76,7 +64,7 @@ def get_fake_parcel_data(
     locale: Annotated[AvailableLocales, Query()] = AvailableLocales.nl_BE,  # type: ignore
 ):
     """
-    Get fake data for testing purposes based on the provided limit and locale.
+    Get fake data for packages for testing purposes based on the provided limit and locale
     """
 
     fake = Faker(locale.value)
@@ -85,7 +73,7 @@ def get_fake_parcel_data(
 
     return [
         Package(
-            reference=fake.random_letters(32),
+            reference="".join(fake.random_letters(32)),
             dimension=f"{fake.random_int(min=1, max=100)}x{fake.random_int(min=1, max=100)}x{fake.random_int(min=1, max=100)}",
             status=random.choice(["pending", "in_transit", "delivered"]),
             name=fake.first_name(),
@@ -98,7 +86,7 @@ def get_fake_parcel_data(
 
 # ===========================================================================
 @router.get("/locations", response_model=list[Location])
-def get_fake_location_data(
+def get_fake_locations_data(
     limit: Annotated[int, Query(ge=1, le=100)] = 1,
     locale: Annotated[AvailableLocales, Query()] = AvailableLocales.nl_BE,  # type: ignore
 ):
@@ -110,21 +98,21 @@ def get_fake_location_data(
 
     log.info(f"Generating {limit} fake locations with locale {locale}")
 
-    locationNames = Enum("pickup point","distribution center","airport")
+    LocationNames = Enum("pickup point", "distribution center", "airport")
 
     return [
         Location(
-            name=fake.random_company_acronym(),
-            location_type=fake.enum(locationNames),
+            name=fake.company(),
+            location_type=fake.enum(LocationNames).name,
             contact_number=fake.phone_number(),
-            opening_hours=str(fake.random_int(min=6,max=12) + "AM - " + fake.random_int(min=1,max=9) + "PM") 
+            opening_hours=f"{fake.random_int(min=6,max=12)} AM - {fake.random_int(min=1,max=9)} PM"
         )
         for _ in range(limit)
     ]
 
 # ===========================================================================
 @router.get("/flights", response_model=list[Flight])
-def get_fake_flight_data(
+def get_fake_flights_data(
     limit: Annotated[int, Query(ge=1, le=100)] = 1,
     locale: Annotated[AvailableLocales, Query()] = AvailableLocales.nl_BE,  # type: ignore
 ):
@@ -136,46 +124,45 @@ def get_fake_flight_data(
 
     log.info(f"Generating {limit} fake flights with locale {locale}")
 
-    statusFlight = Enum("departed","arrived","underway")
+    StatusFlight = Enum("departed", "arrived", "underway")
 
-    listFakeFlightData: list[Flight] = list()
+    fake_flight_data: list[Flight] = []
 
     for _ in range(limit):
         today = datetime.today()
-        departureDate = fake.date_this_year()
-        statusCurrentFlight = fake.enum(statusFlight)
+        departure_date = fake.date_this_year()
+        status_current_flight = fake.enum(StatusFlight)
 
-        if statusCurrentFlight == "departed":
-            arrivalDate = fake.date_between_dates(
+        if status_current_flight.name == "departed":
+            arrival_date = fake.date_between_dates(
                 date_start=today,
-                date_end=departureDate + timedelta(days=fake.random_int(0,3))
+                date_end=departure_date + timedelta(days=fake.random_int(0,3))
             )
-        elif statusCurrentFlight == "arrived":
-            arrivalDate = fake.date_between_dates(
-                date_start=departureDate,
+        elif status_current_flight.name == "arrived":
+            arrival_date = fake.date_between_dates(
+                date_start=departure_date,
                 date_end=today
             )
-        elif statusCurrentFlight == "underway":
-            arrivalDate = departureDate + timedelta(
+        elif status_current_flight.name == "underway":
+            arrival_date = departure_date + timedelta(
                 days=fake.random_int(0,3),
-                hours=(abs(random.random) % 24)
+                hours=(abs(random.random()) % 24)
             )
-            pass
         
         
-        listFakeFlightData.append(
+        fake_flight_data.append(
             Flight(
-                departure_time=departureDate,
-                arrival_time=arrivalDate,
-                status=statusCurrentFlight,
+                departure_time=datetime.combine(departure_date, datetime.min.time()),
+                arrival_time=datetime.combine(arrival_date, datetime.min.time()),
+                status=status_current_flight.name,
             )
         )
 
-    return 
+    return fake_flight_data
 
 # ===========================================================================
 @router.get("/cities", response_model=list[City])
-def get_fake_location_data(
+def get_fake_cities_data(
     limit: Annotated[int, Query(ge=1, le=100)] = 1,
     locale: Annotated[AvailableLocales, Query()] = AvailableLocales.nl_BE,  # type: ignore
 ):
@@ -189,61 +176,15 @@ def get_fake_location_data(
 
     return [
         City(
-            name=fake.city_name(),
-            postcode=fake.postal_code()
+            name=fake.city(),
+            postcode=fake.postcode()
         )
         for _ in range(limit)
     ]
 
 # ===========================================================================
 @router.get("/airplanes", response_model=list[Airplane])
-def get_fake_location_data(
-    limit: Annotated[int, Query(ge=1, le=100)] = 1,
-    locale: Annotated[AvailableLocales, Query()] = AvailableLocales.nl_BE,  # type: ignore
-):
-    """
-    Get fake data for testing purposes based on the provided limit and locale.
-    """
-
-    fake = Faker(locale=locale.value,providers=["AirTravelProvider"])
-    
-
-    log.info(f"Generating {limit} fake airplanes with locale {locale}")
-
-    return [
-        Airplane(
-            model=fake.flight()["iata"],
-            capacity=fake.random_int(15,600),
-            status="",
-        )
-        for _ in range(limit)
-    ]
-# ===========================================================================
-@router.get("/airports", response_model=list[Airport])
-def get_fake_location_data(
-    limit: Annotated[int, Query(ge=1, le=100)] = 1,
-    locale: Annotated[AvailableLocales, Query()] = AvailableLocales.nl_BE,  # type: ignore
-):
-    """
-    Get fake data for testing purposes based on the provided limit and locale.
-    """
-
-    # NOTE : I can't seem to add providers for some reason
-    # fake = Faker(locale=locale.value,providers=["AirTravelProvider"])
-    
-
-    log.info(f"Generating {limit} fake airports with locale {locale}")
-
-    return [
-        Airport(
-            name="fake.airport_name()"
-        )
-        for _ in range(limit)
-    ]
-
-# ===========================================================================
-@router.get("/airlines", response_model=list[Airline])
-def get_fake_location_data(
+def get_fake_airplanes_data(
     limit: Annotated[int, Query(ge=1, le=100)] = 1,
     locale: Annotated[AvailableLocales, Query()] = AvailableLocales.nl_BE,  # type: ignore
 ):
@@ -252,16 +193,62 @@ def get_fake_location_data(
     """
 
     fake = Faker(locale=locale.value)
+    fake.add_provider(AirTravelProvider)
     
+
+    log.info(f"Generating {limit} fake airplanes with locale {locale}")
+
+    return [
+        Airplane(
+            model=fake.airport_object()["iata"],
+            capacity=fake.random_int(15,600),
+            status="",
+        )
+        for _ in range(limit)
+    ]
+# ===========================================================================
+@router.get("/airports", response_model=list[Airport])
+def get_fake_airports_data(
+    limit: Annotated[int, Query(ge=1, le=100)] = 1,
+    locale: Annotated[AvailableLocales, Query()] = AvailableLocales.nl_BE,  # type: ignore
+):
+    """
+    Get fake data for testing purposes based on the provided limit and locale.
+    """
+
+    # NOTE : I can't seem to add providers for some reason
+    fake = Faker(locale=locale.value)
+    fake.add_provider(AirTravelProvider)
+    
+
+    log.info(f"Generating {limit} fake airports with locale {locale}")
+
+    return [
+        Airport(name=fake.airport_name())
+        for _ in range(limit)
+    ]
+
+# ===========================================================================
+@router.get("/airlines", response_model=list[Airline])
+def get_fake_airlines_data(
+    limit: Annotated[int, Query(ge=1, le=100)] = 1,
+    locale: Annotated[AvailableLocales, Query()] = AvailableLocales.nl_BE,  # type: ignore
+):
+    """
+    Get fake data for testing purposes based on the provided limit and locale.
+    """
+
+    fake = Faker(locale=locale.value) 
+    fake.add_provider(AirTravelProvider)
 
     log.info(f"Generating {limit} fake airlines with locale {locale}")
 
     return [
         Airline(
-            name="",
-            IATA_code="",
-            contact_number="",
-            headquarters_location="",
+            name=fake.airport_name(),
+            IATA_code=fake.airport_iata(),
+            contact_number=fake.phone_number(),
+            headquarters_location=fake.city(),
         )
         for _ in range(limit)
     ]
