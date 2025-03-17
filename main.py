@@ -15,7 +15,7 @@ from logging.handlers import TimedRotatingFileHandler
 from config import DB_CLIENT , ORIGINS
  
 # loads env variables (ask Lorenzo why neccessary)
-load_dotenv(override=os.getenv("OVERRIDE_SYSTEM") == "false")
+load_dotenv(override=True)
 
 
 # FastAPI uses events or a lifespan parameter to handle it's runtime logic before booting and after shutdown
