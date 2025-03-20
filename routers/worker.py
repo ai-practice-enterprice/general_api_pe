@@ -9,13 +9,15 @@ from config import DB_CLIENT
 router = APIRouter(prefix="/workers", tags=["Worker Data"])
 log = logging.getLogger(__name__)
 
-@router.get("/arrival",response_model=str)
-def get_worker_arrival_confirmation(
+@router.get("/arrival", response_model=str)
+def worker_arrival_confirmation(
     _worker_id: int,
     _zone_id: int,
 ):
     """
-    Get a Okay response from the server, when arriving
+    Confirms that the driver has arrived at the warehouse and assigns an available load-out zone.
+    In this example, load-out zones in the database are marked with 'zoneType' equal to "loadOut"
+    and are considered available if 'zoneAvailable' is True.
     """
     log.info(f"sending response to worker (arriving at warehouse)")
 
