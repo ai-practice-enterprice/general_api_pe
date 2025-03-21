@@ -1,12 +1,10 @@
 import logging
-import random
 from fastapi import APIRouter, Query
 from typing import Annotated
 
 # Import database client and models
-from config import DB_CLIENT
-from database.db_schema import *  # Import database schema
-from prisma.models import Robots  # Import Robots model for database operations
+from database.db_schema import Robots as RobotsSchema
+from prisma.models import Robots
 
 
 # Setup API router
@@ -29,6 +27,7 @@ def get_control_robot(
     - `message`: The control message containing movement parameters.
     - `topic`: The topic where the command should be sent.
     """
+
 
 @router.get("/action/navigation", response_model=str)
 def get_send_nav2_msg(
@@ -57,14 +56,15 @@ def get_add_robot_to_db(
     - `robottype`: Type of the robot.
     - `location`: Initial warehouse location of the robot.
     """
-    newRobot = Robots(
+    newRobot = RobotsSchema(
         robotStatus=True, #status = active
         robotType=robottype,
         robotNamespace=namespace,
     ) 
 
-    resultQuery = Robots.prisma().create(newRobot) #insert into database
+    resultQuery = Robots.prisma().create(data=newRobot.model_dump())
     return resultQuery
+
 
 @router.get("/watch", response_model=str)
 def get_all_robot_status():
@@ -72,14 +72,13 @@ def get_all_robot_status():
     Retrieve a list of all active robots from the database.
     """
 
-    resultQuery = DB_CLIENT.robots.find_many(
+    resultQuery = Robots.prisma().find_many(
         where={
             'robotStatus' : True
         }
     )
 
     return resultQuery
-
 
 
 # ======================== Robot Status Management ========================
@@ -94,7 +93,7 @@ def get_set_robot_inactive(
     - `namespace`: Unique identifier for the robot.
     - `location`: Current location of the robot (not used in update but provided for clarity).
     """
-    resultQuery = DB_CLIENT.robots.update(
+    resultQuery = Robots.prisma().update_many(
         where={
             'robotNamespace': namespace
         },
@@ -114,7 +113,7 @@ def get_set_robot_active(
     Set a robot as active (enabled) in the database.
     - `namespace`: Unique identifier for the robot.
     """
-    resultQuery = DB_CLIENT.robots.update(
+    resultQuery = Robots.prisma().update_many(
         where={
             'robotNamespace': namespace
         },
@@ -124,6 +123,3 @@ def get_set_robot_active(
     )
 
     return resultQuery
-
-
-

@@ -1,13 +1,9 @@
 import logging
-import random
 from fastapi import APIRouter, Query
 from faker import Faker
-from faker.config import AVAILABLE_LOCALES
-from enum import Enum
 from prisma.models import Zones
 from typing import Annotated
 
-from config import DB_CLIENT
 from database.db_schema import Zones as ZonesSchema
 
 
@@ -22,20 +18,18 @@ def get_zone_status():
     """
     log.info(f"fetching zone data from database")
     
-    resultQuery = DB_CLIENT.zones.find_many()
+    resultQuery = Zones.prisma().find_many()
 
     return  resultQuery
 
 @router.get("/register", response_model=list[ZonesSchema])
-def get_register_zone_to_db(
-    zone: Annotated[ZonesSchema,Query()] = None,
-):
+def get_register_zone_to_db(zone: ZonesSchema):
     """
     Add zone to DB
     """
     log.info(f"adding zone to db")
     
-    resultQuery = DB_CLIENT.zones.create(zone)
+    resultQuery = Zones.prisma().create(zone)
 
     return resultQuery
 
@@ -60,9 +54,7 @@ async def generate_random_zones(limit: Annotated[int, Query(ge=1, le=100)] = 1):
             "zoneCheck": fake.boolean(chance_of_getting_true=25)
         }
 
-
-        # Save zone in database
-        zone = await Zones.prisma().create(zone_data)
+        zone = await Zones.prisma().create(zone_data) # type:ignore
         zones.append(ZonesSchema(**zone.model_dump()))
 
     log.info(f"Successfully generated and saved {len(zones)} zones")

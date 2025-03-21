@@ -12,7 +12,7 @@ import logging
 from logging.handlers import TimedRotatingFileHandler
 
 # contains all URL configurations 
-from config import DB_CLIENT , ORIGINS
+from config import ORIGINS
  
 # loads env variables (ask Lorenzo why neccessary)
 load_dotenv(override=True)
@@ -37,7 +37,7 @@ app = FastAPI(lifespan=lifespan)
 # https://fastapi.tiangolo.com/tutorial/cors/
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=ORIGINS,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

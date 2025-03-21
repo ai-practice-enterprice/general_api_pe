@@ -1,7 +1,6 @@
 import logging
 from fastapi import APIRouter
-from config import DB_CLIENT
-from database.db_schema import *
+from prisma.models import Zones, Robots, Paths, Packages, OrderMovement
 
 router = APIRouter(prefix="/database", tags=["Database"])
 log = logging.getLogger(__name__)
@@ -14,11 +13,11 @@ async def get_database_content():
     log.info("Fetching all database content")
 
     try:
-        zones = await DB_CLIENT.zones.find_many()
-        robots = await DB_CLIENT.robots.find_many()
-        paths = await DB_CLIENT.paths.find_many()
-        packages = await DB_CLIENT.packages.find_many()
-        order_movements = await DB_CLIENT.order_movement.find_many()
+        zones = await Zones.prisma().find_many()
+        robots = await Robots.prisma().find_many()
+        paths = await Paths.prisma().find_many()
+        packages = await Packages.prisma().find_many()
+        order_movements = await OrderMovement.prisma().find_many()
 
         return {
             "Zones": zones,
@@ -27,7 +26,6 @@ async def get_database_content():
             "Packages": packages,
             "OrderMovements": order_movements
         }
-
     except Exception as e:
         log.error(f"Error collecting data: {e}")
         return {"error": str(e)}
