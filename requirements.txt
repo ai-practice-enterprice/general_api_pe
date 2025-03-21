@@ -12,3 +12,4 @@ mysql-connector-python==9.2.0
 faker_airtravel==0.4
 sqlmodel==0.0.24
 prisma==0.15.0
+pillow==11.1.0
