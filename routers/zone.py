@@ -52,14 +52,18 @@ async def generate_random_zones(limit: Annotated[int, Query(ge=1, le=100)] = 1):
     zones = []
 
     for _ in range(limit):
-        zone = await Zones.prisma().create({
+        zone_data = {
             "zoneDescription": fake.sentence(nb_words=8),
             "zoneName": fake.word(),
             "zoneAvailable": fake.boolean(chance_of_getting_true=75),
             "zoneType": fake.random_element(elements=("dropZoneIn", "dropZoneOut")),
             "zoneCheck": fake.boolean(chance_of_getting_true=25)
-        })
+        }
 
+
+        # Save zone in database
+        zone = await Zones.prisma().create(zone_data)
         zones.append(ZonesSchema(**zone.model_dump()))
 
+    log.info(f"Successfully generated and saved {len(zones)} zones")
     return zones
