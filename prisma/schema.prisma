@@ -9,7 +9,7 @@ generator client {
 
 model Zones {
   zoneID              Int             @id @default(autoincrement())
-  zoneDescription     String          @db.VarChar(255)
+  zoneDescription     String
   zoneName            String
   zoneAvailable       Boolean         @default(true)
   zoneType            String          @default("dropZoneIn")
