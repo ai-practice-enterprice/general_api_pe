@@ -116,6 +116,40 @@ async def toggle_zone_availability(zone_id: int):
     return {"status": "success"}
 
 
+@router.patch("/zone/{zone_id}/enter")
+async def enter_zone(zone_id: int):
+    """
+    Mark a zone as entered
+    """
+    zone = await Zones.prisma().find_unique(where={"zoneID": zone_id})
+    if not zone:
+        raise HTTPException(status_code=404, detail="Zone not found")
+    
+    if not zone.zoneAvailable:
+        raise HTTPException(status_code=400, detail="Zone is not available")
+
+    await Zones.prisma().update(where={"zoneID": zone_id}, data={"zoneCheck": True})
+
+    return {"status": "success"}
+
+
+@router.patch("/zone/{zone_id}/exit")
+async def exit_zone(zone_id: int):
+    """
+    Mark a zone as exited
+    """
+    zone = await Zones.prisma().find_unique(where={"zoneID": zone_id})
+    if not zone:
+        raise HTTPException(status_code=404, detail="Zone not found")
+    
+    if not zone.zoneAvailable:
+        raise HTTPException(status_code=400, detail="Zone is not available")
+
+    await Zones.prisma().update(where={"zoneID": zone_id}, data={"zoneCheck": False})
+
+    return {"status": "success"}
+
+
 @router.get("/path/all")
 async def read_paths():
     """
