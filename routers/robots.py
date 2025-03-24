@@ -2,6 +2,7 @@ import logging
 import random
 from fastapi import APIRouter, Query
 from typing import Annotated
+import httpx
 
 from config import DB_CLIENT
 from database.db_schema import *
@@ -15,11 +16,15 @@ log = logging.getLogger(__name__)
 def get_control_robot(
     namespace: Annotated[str, Query()] = "jetracer_1",
     message: Annotated[str, Query()] = "{linear: {x: 5.0, y: 0.0, z: 0.0}, angular: {x: 0.0, y: 0.0, z: -0.1}}",
-    topic: Annotated[str, Query()] = "/diff_drive_controller/cmd_vel geometry_msgs/msg/TwistStamped",
+    topic: Annotated[str, Query()] = "/diff_drive_controller/cmd_vel",
 ):
     """
-    Control robot with given message , namespace , topic
+    Control robot with given message, message type , namespace , topic
     """
+
+    # response = httpx.get(f"http://bsu-ros-server:8003?namespace={namespace}&message={message}&&topic={topic}")
+
+    return f"http://bsu-ros-server:8003?namespace={namespace}&message={message}&topic={topic}"
 
 @router.get("/action/navigation", response_model=str)
 def get_send_nav2_msg(

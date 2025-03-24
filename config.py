@@ -19,8 +19,11 @@ ORIGINS = [
     "http://127.0.0.1:8000", # this process
     "http://bsu-server:8000",# this process
     "http://127.0.0.1:8002", # bsu-website
+    "http://127.0.0.1:80",   # bsu-website
     "http://bsu-website:80", # doesn't seem to work
     "http://bsu-website",    # doesn't seem to work
+    "http://bsu-ros-server",    # 
+    "http://bsu-ros-server:8003",    # 
 ]
 # URL configuration ================================================
 
