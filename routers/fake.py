@@ -1,7 +1,7 @@
 import logging
 import random
 from enum import Enum
-from datetime import datetime , timedelta
+from datetime import datetime, timedelta
 from fastapi import APIRouter, Query
 from typing import Annotated
 from faker import Faker
@@ -252,8 +252,3 @@ def get_fake_airlines_data(
         )
         for _ in range(limit)
     ]
-# ===========================================================================
-# ===========================================================================
-# ===========================================================================
-# ===========================================================================
-# ===========================================================================

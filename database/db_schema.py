@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import Optional
 
 
 # ===================== Zones Model =====================
@@ -11,17 +11,16 @@ class Zones(BaseModel):
     zoneType: str
     zoneCheck: bool
 
-        
+
 
 
 # ===================== Robots Model =====================
 class Robots(BaseModel):
-    robotID: int
     robotStatus: bool
     robotType: str
-    robotNamespace: Optional[str] 
+    robotNamespace: Optional[str]
 
-        
+
 
 
 # ===================== Paths Model =====================
@@ -34,7 +33,7 @@ class Paths(BaseModel):
     pathCoordinates: str 
     pathActive: bool
 
-        
+
 
 
 # ===================== Packages Model =====================
@@ -45,7 +44,7 @@ class Packages(BaseModel):
     packageNextHop: Optional[int]
     packageDestinationAddress: str
 
-        
+
 
 
 # ===================== Order Movement Model =====================
@@ -55,5 +54,3 @@ class OrderMovement(BaseModel):
     RobotID: int
     PathID: int
     PackageID: int
-
-        

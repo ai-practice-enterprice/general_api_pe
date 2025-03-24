@@ -1,16 +1,20 @@
 import logging
-import random
 from fastapi import APIRouter, Query
 from typing import Annotated
 import httpx
 
-from config import DB_CLIENT
-from database.db_schema import *
+# Import database client and models
+from database.db_schema import Robots as RobotsSchema
+from prisma.models import Robots
 
-# API endpoints setup ==========================================================================
+
+# Setup API router
 router = APIRouter(prefix="/robot", tags=["Robots"])
 log = logging.getLogger(__name__)
 
+
+
+# ======================== Robot Control Endpoints ========================
 
 @router.get("/action/direct_control", response_model=str)
 def get_control_robot(
@@ -19,12 +23,12 @@ def get_control_robot(
     topic: Annotated[str, Query()] = "/diff_drive_controller/cmd_vel",
 ):
     """
-    Control robot with given message, message type , namespace , topic
+    Directly control a robot by sending a movement command.
+    - `namespace`: The identifier for the robot.
+    - `message`: The control message containing movement parameters.
+    - `topic`: The topic where the command should be sent.
     """
 
-    # response = httpx.get(f"http://bsu-ros-server:8003?namespace={namespace}&message={message}&&topic={topic}")
-
-    return f"http://bsu-ros-server:8003?namespace={namespace}&message={message}&topic={topic}"
 
 @router.get("/action/navigation", response_model=str)
 def get_send_nav2_msg(
@@ -32,9 +36,14 @@ def get_send_nav2_msg(
     warehouseZone: Annotated[str, Query()] = "robot_station",
 ):
     """
-    Order robot to go given zone location with given namespace and given zone name
+    Send a robot to a specific zone in the warehouse.
+    - `namespace`: The identifier for the robot.
+    - `warehouseZone`: The target location for the robot.
     """
 
+
+
+# ======================== Robot Database Management ========================
 
 @router.get("/register", response_model=str)
 def get_add_robot_to_db(
@@ -43,25 +52,28 @@ def get_add_robot_to_db(
     location: Annotated[str, Query()] = "robot_station",
 ):
     """
-    Add a robot to the database and give it's current location
+    Register a new robot in the database with its initial location.
+    - `namespace`: Unique identifier for the robot.
+    - `robottype`: Type of the robot.
+    - `location`: Initial warehouse location of the robot.
     """
-    newRobot = Robots(
-        robotStatus=True,
+    newRobot = RobotsSchema(
+        robotStatus=True, #status = active
         robotType=robottype,
         robotNamespace=namespace,
     ) 
 
-    resultQuery = DB_CLIENT.robots.create(newRobot)
-
+    resultQuery = Robots.prisma().create(data=newRobot.model_dump())
     return resultQuery
+
 
 @router.get("/watch", response_model=str)
 def get_all_robot_status():
     """
-    Fetch all the robots that are active
+    Retrieve a list of all active robots from the database.
     """
 
-    resultQuery = DB_CLIENT.robots.find_many(
+    resultQuery = Robots.prisma().find_many(
         where={
             'robotStatus' : True
         }
@@ -69,15 +81,20 @@ def get_all_robot_status():
 
     return resultQuery
 
+
+# ======================== Robot Status Management ========================
+
 @router.get("/activate", response_model=str)
 def get_set_robot_inactive(
     namespace: Annotated[str, Query()] = "jetracer_1",
     location: Annotated[str, Query()] = "robot_station",
 ):
     """
-    Set a robot as unactive
+    Set a robot as inactive in the database.
+    - `namespace`: Unique identifier for the robot.
+    - `location`: Current location of the robot (not used in update but provided for clarity).
     """
-    resultQuery = DB_CLIENT.robots.update(
+    resultQuery = Robots.prisma().update_many(
         where={
             'robotNamespace': namespace
         },
@@ -94,9 +111,10 @@ def get_set_robot_active(
     namespace: Annotated[str, Query()] = "jetracer_1",
 ):
     """
-    Set a robot as active
+    Set a robot as active (enabled) in the database.
+    - `namespace`: Unique identifier for the robot.
     """
-    resultQuery = DB_CLIENT.robots.update(
+    resultQuery = Robots.prisma().update_many(
         where={
             'robotNamespace': namespace
         },
@@ -106,6 +124,3 @@ def get_set_robot_active(
     )
 
     return resultQuery
-
-
-

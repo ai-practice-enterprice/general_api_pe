@@ -12,10 +12,10 @@ import logging
 from logging.handlers import TimedRotatingFileHandler
 
 # contains all URL configurations 
-from config import DB_CLIENT , ORIGINS
+from config import ORIGINS
  
 # loads env variables (ask Lorenzo why neccessary)
-load_dotenv(override=os.getenv("OVERRIDE_SYSTEM") == "false")
+load_dotenv(override=True)
 
 
 # FastAPI uses events or a lifespan parameter to handle it's runtime logic before booting and after shutdown
@@ -37,7 +37,7 @@ app = FastAPI(lifespan=lifespan)
 # https://fastapi.tiangolo.com/tutorial/cors/
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=ORIGINS,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

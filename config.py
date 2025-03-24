@@ -16,6 +16,7 @@ MYSQL_DB_SERVER_URL = "mysql://aiUser:pwdAIteamDB@bsu-db-server:3306/bsu_warehou
 # add the "origins" (the url of the server)
 ORIGINS = [
     "http://localhost:8000", # this process
+    "http://localhost:5500",      # this process
     "http://127.0.0.1:8000", # this process
     "http://bsu-server:8000",# this process
     "http://127.0.0.1:8002", # bsu-website
@@ -26,8 +27,3 @@ ORIGINS = [
     "http://bsu-ros-server:8003",    # 
 ]
 # URL configuration ================================================
-
-
-# create DB connection ================================================
-DB_CLIENT = Prisma()
-# create DB connection ================================================

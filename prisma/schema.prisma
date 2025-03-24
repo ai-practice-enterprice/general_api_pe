@@ -8,36 +8,36 @@ generator client {
 }
 
 model Zones {
-  zoneID          Int     @id @default(autoincrement())
-  zoneDescription String  @db.VarChar(255)
-  zoneName        String
-  zoneAvailable   Boolean @default(true)
-  zoneType        String  @default("dropZoneIn")
-  zoneCheck       Boolean @default(false)
-  Paths_pathZoneStart Paths[] @relation("PathZoneStart")
-  Paths_pathZoneEnd   Paths[] @relation("PathZoneEnd")
-  Packages        Packages[]
-  OrderMovement   OrderMovement[]
+  zoneID              Int             @id @default(autoincrement())
+  zoneDescription     String
+  zoneName            String
+  zoneAvailable       Boolean         @default(true)
+  zoneType            String          @default("dropZoneIn")
+  zoneCheck           Boolean         @default(false)
+  Paths_pathZoneStart Paths[]         @relation("PathZoneStart")
+  Paths_pathZoneEnd   Paths[]         @relation("PathZoneEnd")
+  Packages            Packages[]
+  OrderMovement       OrderMovement[]
 }
 
 model Robots {
-  robotID       Int    @id @default(autoincrement())
-  robotStatus   Boolean @default(true)
-  robotType     String @default("jetank")
+  robotID        Int             @id @default(autoincrement())
+  robotStatus    Boolean         @default(true)
+  robotType      String          @default("jetank")
   robotNamespace String
-  OrderMovement OrderMovement[]
+  OrderMovement  OrderMovement[]
 }
 
 model Paths {
-  pathID          Int     @id @default(autoincrement())
+  pathID          Int             @id @default(autoincrement())
   pathNumber      Int
-  pathDescription String  @default("")
+  pathDescription String          @default("")
   pathZoneStart   Int
   pathZoneEnd     Int
   pathCoordinates String // !!! Array ??
-  pathActive      Boolean @default(false)
-  zoneStart       Zones   @relation("PathZoneStart", fields: [pathZoneStart], references: [zoneID])
-  zoneEnd         Zones   @relation("PathZoneEnd", fields: [pathZoneEnd], references: [zoneID])
+  pathActive      Boolean         @default(false)
+  zoneStart       Zones           @relation("PathZoneStart", fields: [pathZoneStart], references: [zoneID])
+  zoneEnd         Zones           @relation("PathZoneEnd", fields: [pathZoneEnd], references: [zoneID])
   OrderMovement   OrderMovement[]
 
   @@index([pathZoneStart], name: "pathZoneStart")
@@ -45,27 +45,27 @@ model Paths {
 }
 
 model Packages {
-  packageID             Int    @id @default(autoincrement())
-  customerID            Int?   
-  packageCurrentHop     Int?   
-  packageNextHop        Int?   
-  packageDestinationAddress String @default("")
-  Zones             Zones?       @relation(fields: [packageCurrentHop], references: [zoneID])
-  OrderMovement   OrderMovement[]
+  packageID                 Int             @id @default(autoincrement())
+  customerID                Int?
+  packageCurrentHop         Int?
+  packageNextHop            Int?
+  packageDestinationAddress String          @default("")
+  Zones                     Zones?          @relation(fields: [packageCurrentHop], references: [zoneID])
+  OrderMovement             OrderMovement[]
 
   @@index([packageCurrentHop], name: "packageCurrentHop")
   @@index([packageNextHop], name: "packageNextHop")
 }
 
 model OrderMovement {
-  orderMovementID Int     @id @default(autoincrement())
+  orderMovementID Int      @id @default(autoincrement())
   ZoneID          Int
   RobotID         Int
   PathID          Int
   PackageID       Int
-  zones           Zones   @relation(fields: [ZoneID], references: [zoneID])
+  zones           Zones    @relation(fields: [ZoneID], references: [zoneID])
   robots          Robots   @relation(fields: [RobotID], references: [robotID])
-  paths           Paths   @relation(fields: [PathID], references: [pathID])
+  paths           Paths    @relation(fields: [PathID], references: [pathID])
   packages        Packages @relation(fields: [PackageID], references: [packageID])
 
   @@index([ZoneID], name: "ZoneID")
@@ -73,4 +73,3 @@ model OrderMovement {
   @@index([PathID], name: "PathID")
   @@index([PackageID], name: "PackageID")
 }
-
