@@ -23,6 +23,12 @@ load_dotenv(override=True)
 # https://fastapi.tiangolo.com/advanced/events/#async-context-manager  
 @asynccontextmanager
 async def lifespan(_) -> AsyncIterator[None]:
+    # Prisma requires a client. The client is a auto-generated and type-safe query builder that's tailored to your data. (as stated in the docs : https://www.prisma.io/docs/orm/prisma-client/setup-and-configuration/introduction)
+    # the Prisma client requires a schema file (usually : schema.prisma) which is a file that defines: 
+    # - the "models" (tables in your DB) , 
+    # - your datasource (your URL where your DB is located)
+    # - and your generator (which is your DB provider) 
+    # Once the prisma file is made and Prisma is INSTALLED you  can run "prisma generate" in the root of the directory 
     prisma = Prisma(auto_register=True)
     log.info("Starting up")
     await prisma.connect()
