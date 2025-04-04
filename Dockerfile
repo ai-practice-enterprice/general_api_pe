@@ -1,6 +1,7 @@
 FROM python:3.12-slim AS builder
 WORKDIR /app
 
+# we install nodejs so that we can run prisma studio (a GUI) for having interface to the DB
 RUN apt-get update && apt-get install -y \
     libzbar0 \
     nodejs \
@@ -8,9 +9,9 @@ RUN apt-get update && apt-get install -y \
     rm -rf /var/lib/apt/lists/*
 
 COPY . .
+RUN chmod 777 ./entrypoint.sh
 RUN pip install --no-cache-dir -r requirements.txt
 
 EXPOSE 8000
 
-RUN chmod +x ./entrypoint.sh
-CMD ["./entrypoint.sh"]
+CMD ["/bin/sh","entrypoint.sh" ]

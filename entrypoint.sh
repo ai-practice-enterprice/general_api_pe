@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e  
-
 # https://prisma-client-py.readthedocs.io/en/stable/getting_started/quickstart/
 # The db push command also generates the client for you. 
 # If you want to generate the client without modifying your database, use the following command: prisma generate --watch

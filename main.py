@@ -18,7 +18,8 @@ from config import ORIGINS
 load_dotenv(override=True)
 
 
-# FastAPI uses events or a lifespan parameter to handle it's runtime logic before booting and after shutdown
+# FastAPI (https://realpython.com/fastapi-python-web-apis/)
+# uses events or a lifespan parameter to handle it's runtime logic before booting and after shutdown
 # however you must choose between the 2. as stated in the docs "It's all lifespan or all events, not both."
 # https://fastapi.tiangolo.com/advanced/events/#async-context-manager  
 @asynccontextmanager
@@ -29,6 +30,7 @@ async def lifespan(_) -> AsyncIterator[None]:
     # - your datasource (your URL where your DB is located)
     # - and your generator (which is your DB provider) 
     # Once the prisma file is made and Prisma is INSTALLED you  can run "prisma generate" in the root of the directory 
+    # You can also run "prisma studio" which offers a GUI to the database for developement
     prisma = Prisma(auto_register=True)
     log.info("Starting up")
     await prisma.connect()
