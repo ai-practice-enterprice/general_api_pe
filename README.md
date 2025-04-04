@@ -63,6 +63,19 @@ You can both encode/decode qrcodes via file path or base64 string. By doing so y
 
 In order to decode qrcodes you need to install (besides the usual dependencies) `pyzbar` on your machine unless when using Windows.
 
+## Connection with the database
+Prisma requires a client. The client is a auto-generated and type-safe query builder that's tailored to your data.(As stated in the [documentation](https://www.prisma.io/docs/orm/prisma-client/setup-and-configuration/introduction))
+
+the Prisma client requires a schema file (usually : schema.prisma) which is a file that defines: 
+- the "models" (tables in your DB) , 
+- your datasource (your URL where your DB is located)
+- and your generator (which is your DB provider, the one that allows you to send SQL statements to your DB) 
+
+Once the prisma file is made and Prisma is INSTALLED you  can run "prisma generate" in the root of the project. \ 
+Afterwards, you can also run "prisma studio" which offers a GUI to the database for developement.
+
+![Prisma Studio](./images/Prisma_studio.png)
+
 ## Aruco Markers
 
 The same applies to aruco markers, they will be used to reference the zone and can be generated/decoded using both the file path or base64 in case you don't want to store them on the disk.
