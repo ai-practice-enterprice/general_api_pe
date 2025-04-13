@@ -66,7 +66,6 @@ class MapPlotter():
                     # -------- for the SVG -------- #
                     color,line_clr, alpha = self.TILE_COLORS[tile]
                     if zone_type in ZONE_TYPE_FOR_ROBOTS:
-                        zoneID += 1
                         class_name = "zone"
                         rect = svgwrite.shapes.Rect(
                             insert=(x * self.TILE_SIZE, y * self.TILE_SIZE), 
@@ -77,8 +76,9 @@ class MapPlotter():
                             stroke_dasharray="5,5",
                             stroke_width=1,
                             id = str(zoneID),
-                            class_ = class_name,
+                            class_ = zone_type + " " + class_name,
                         )
+                        zoneID += 1
                     else :
                         class_name = "no_zone"
                         rect = svgwrite.shapes.Rect(
