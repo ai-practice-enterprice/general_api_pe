@@ -3,6 +3,9 @@ import random
 from fastapi import APIRouter, Query
 
 # API endpoints for camera live feed (viewed on the webserver) data ==========================================================================
+
+# NOT YET IMPLEMENTED BECAUSE NOT REQUIRED
+
 router = APIRouter(prefix="/camera", tags=["Camera Data"])
 log = logging.getLogger(__name__)
 

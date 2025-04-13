@@ -12,12 +12,15 @@ model Zones {
   zoneDescription     String
   zoneName            String
   zoneAvailable       Boolean         @default(true)
-  zoneType            String          @default("dropZoneIn")
-  zoneCheck           Boolean         @default(false)
+  zoneType            String          @default("DropZoneIn")
+  zoneX               Int             @default(0)
+  zoneY               Int             @default(0)
+  
   Paths_pathZoneStart Paths[]         @relation("PathZoneStart")
   Paths_pathZoneEnd   Paths[]         @relation("PathZoneEnd")
-  Packages            Packages[]
   OrderMovement       OrderMovement[]
+  PackageMovement     PackageMovement[]
+
 }
 
 model Robots {
@@ -25,51 +28,65 @@ model Robots {
   robotStatus    Boolean         @default(true)
   robotType      String          @default("jetank")
   robotNamespace String
+  
   OrderMovement  OrderMovement[]
 }
 
+// for more info on Pose messages in ROS2 => 
+// https://docs.ros2.org/foxy/api/geometry_msgs/msg/Pose.html 
+// https://docs.ros2.org/foxy/api/geometry_msgs/msg/Point.html
+// https://docs.ros2.org/foxy/api/geometry_msgs/msg/Quaternion.html
+// https://automaticaddison.com/how-to-send-a-goal-path-to-the-ros-2-navigation-stack-nav2/
 model Paths {
   pathID          Int             @id @default(autoincrement())
   pathNumber      Int
   pathDescription String          @default("")
   pathZoneStart   Int
   pathZoneEnd     Int
-  pathCoordinates String // !!! Array ??
+  pathCoordinates String // PoseStamped() =>  pos_x,pos_y, (pos_z,orient_x,orient_y,orient_z,) orient_w |  () => are neglected 
   pathActive      Boolean         @default(false)
+
   zoneStart       Zones           @relation("PathZoneStart", fields: [pathZoneStart], references: [zoneID])
   zoneEnd         Zones           @relation("PathZoneEnd", fields: [pathZoneEnd], references: [zoneID])
-  OrderMovement   OrderMovement[]
 
   @@index([pathZoneStart], name: "pathZoneStart")
   @@index([pathZoneEnd], name: "pathZoneEnd")
 }
 
 model Packages {
-  packageID                 Int             @id @default(autoincrement())
-  customerID                Int?
-  packageCurrentHop         Int?
-  packageNextHop            Int?
-  packageDestinationAddress String          @default("")
-  Zones                     Zones?          @relation(fields: [packageCurrentHop], references: [zoneID])
-  OrderMovement             OrderMovement[]
+  packageID                Int             @id @default(autoincrement())
+  streetName               String          @default("")
+  houseNumber              String          @default("") 
+  cityName                 String          @default("")
+  cityPostcode             String          @default("")
 
-  @@index([packageCurrentHop], name: "packageCurrentHop")
-  @@index([packageNextHop], name: "packageNextHop")
+  PackageMovement           PackageMovement[]
 }
 
 model OrderMovement {
-  orderMovementID Int      @id @default(autoincrement())
+  OrderID         Int     @id @default(autoincrement())
   ZoneID          Int
   RobotID         Int
-  PathID          Int
-  PackageID       Int
+  PathID          Int?
+  status          String   @default("pending")
+  
+  
   zones           Zones    @relation(fields: [ZoneID], references: [zoneID])
   robots          Robots   @relation(fields: [RobotID], references: [robotID])
-  paths           Paths    @relation(fields: [PathID], references: [pathID])
-  packages        Packages @relation(fields: [PackageID], references: [packageID])
 
   @@index([ZoneID], name: "ZoneID")
   @@index([RobotID], name: "RobotID")
   @@index([PathID], name: "PathID")
+}
+
+model PackageMovement {
+  ZoneID          Int
+  PackageID       Int
+  
+  zones           Zones    @relation(fields: [ZoneID], references: [zoneID])
+  packages        Packages @relation(fields: [PackageID], references: [packageID])
+
+  @@id([ZoneID,PackageID])
+  @@index([ZoneID], name: "ZoneID")
   @@index([PackageID], name: "PackageID")
 }

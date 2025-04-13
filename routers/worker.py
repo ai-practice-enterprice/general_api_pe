@@ -3,7 +3,7 @@ from fastapi import APIRouter
 
 
 
-# API endpoints for workers ==========================================================================
+# ======================== API endpoints for workers ======================== #
 router = APIRouter(prefix="/workers", tags=["Worker Data"])
 log = logging.getLogger(__name__)
 

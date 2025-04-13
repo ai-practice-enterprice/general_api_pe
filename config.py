@@ -1,10 +1,12 @@
-# if not available use : prisma generate
-from prisma import Prisma 
-
 # URL configuration ================================================
 # other URL's required in routers later on
-ROS2_SERVER_PUBLISHER_URL = "http://127.0.0.1:8003"
-ROS2_SERVER_SUBSCRIBER_URL = "http://127.0.0.1:8003"
+ROS2_SERVER_PUBLISHER_URL = "http://bsu-ros-server:8003"
+ROS2_SERVER_SUBSCRIBER_URL = "http://bsu-ros-server:8003"
+
+# https://medium.com/@akshayjain.developer/connect-redis-with-authentication-using-python-5be3c6af59b9
+# => CELERY_BROKER_URL = 'redis://<username>:<password>@<hostname>:<port>/<db_number>'
+CELERY_BROKER_URL = "redis://:pwdAIteamREDIScontainer@bsu-redis:6379/0"
+CELERY_RESULT_BACKEND = "redis://:pwdAIteamREDIScontainer@bsu-redis:6379/0"
 
 # for some reasons (i don't know why) each python library that connects to a database
 # uses a different URL pattern to connect to a certain database. Here below i provide the ones for a MySQL server
@@ -15,15 +17,18 @@ ROS2_SERVER_SUBSCRIBER_URL = "http://127.0.0.1:8003"
 MYSQL_DB_SERVER_URL = "mysql://aiUser:pwdAIteamDB@bsu-db-server:3306/bsu_warehouse_db"
 # add the "origins" (the url of the server)
 ORIGINS = [
-    "http://localhost:8000", # this process
-    "http://localhost:5500",      # this process
-    "http://127.0.0.1:8000", # this process
-    "http://bsu-server:8000",# this process
-    "http://127.0.0.1:8002", # bsu-website
-    "http://127.0.0.1:80",   # bsu-website
-    "http://bsu-website:80", # doesn't seem to work
-    "http://bsu-website",    # doesn't seem to work
-    "http://bsu-ros-server",    # 
-    "http://bsu-ros-server:8003",    # 
+    # bsu-api-server (this server) 
+    "http://localhost:8000",        
+    "http://127.0.0.1:8000",        
+    "http://bsu-api-server:8000",   
+    # bsu-website
+    "http://bsu-website:80", 
+    "http://bsu-website:8002",    
+    # bsu-ros-server
+    "http://bsu-ros-server",
+    "http://bsu-ros-server:8003",
+    # bsu-redis
+    "http://bsu-redis",
+    "http://bsu-redis:6379",
 ]
 # URL configuration ================================================
