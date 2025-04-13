@@ -79,39 +79,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# https://geshan.com.np/blog/2022/01/redis-docker/
-# https://docs.celeryq.dev/en/stable/getting-started/first-steps-with-celery.html
-# https://derlin.github.io/introduction-to-fastapi-and-celery/03-celery/
-celery_app = Celery(
-    main=__name__, 
-    broker=CELERY_BROKER_URL, 
-    backend=CELERY_RESULT_BACKEND,
-    include=['celery_tasks.tasks'],
-)
-
-
-# https://lip17.medium.com/hands-on-learn-python-celery-in-30-minutes-9544aabb70b1
-# https://docs.celeryq.dev/en/stable/userguide/periodic-tasks.html
-celery_app.conf.update(
-    beat_schedule={
-            'check-task-queue': {
-            'task': 'celery_tasks.tasks.check_for_package_to_move',
-            'schedule': 10.0, # run every 60 seconds 
-            # => so when new packages comes in and are added to the DB. 
-            # The packages won't be handled until the next cycle starts 
-        },
-    }
-)
-
-# (1) -> tasks are functions in Celery, the units of work are defined as Python functions decorated with @celery_app.task (or anything else)
-# (2) -> you add work to the Celery queue by calling the:
-#    .delay() method 
-#    or .send_task()) on your Celery task function.
-#    adding it to the beat function 
-# This serializes the task's arguments and sends a message to the Celery broker 
-# (like Redis or RabbitMQ).
-# (3) -> workers consume tasks by listing to the broker and pick up these task messages 
-# to execute the corresponding Python function.
 
 # Create main app ===================================================== 
 
