@@ -1,7 +1,12 @@
 from prisma.models import Robots, Paths, Zones , PackageMovement , Packages , OrderMovement
+
 import logging
 import random
-from main import celery_app
+
+import asyncio
+from arq import create_pool, ArqRedis, cron
+from arq.connections import RedisSettings
+from arq.jobs import Job
 
 log = logging.getLogger(__name__)
 
@@ -14,8 +19,7 @@ log = logging.getLogger(__name__)
 
 
 # create the taskqueue functions ===========================================================
-@celery_app.task(bind=True, autoretry_for=(Exception,),retry_backoff=True, retry_kwargs={'max_retries': 3,})
-def process_order(self, zone_id: int, package_id: int):
+def process_order(zone_id: int, package_id: int):
     log.info(f"Attempting to clear package {package_id} from zone {zone_id}...")
 
     # 1) Find an available robot
@@ -41,27 +45,26 @@ def process_order(self, zone_id: int, package_id: int):
     # 3) use httpx to send a htttp request using the GET method for the bsu-ros-server (see docker-compose) to handle and then send to the RosApiBridge
 
 
-@celery_app.task(bind=True)
-def check_for_package_to_move(self):
-    log.info("Checking for packages to move")
+async def check_for_package_to_move(ctx: dict):
+    redis = await create_pool(RedisSettings())
+    log.info("arq: Checking for packages to move")
+    session = ctx['prisma']
     try:
-        # new_orders = PackageMovement.prisma().find_many(
-        #     where={
-        #         "zones" : {
-        #             "is" : {
-        #                 "zoneType" : "DropZoneIn"
-        #             }
-        #         }
-        #     },
-        #     include={"zones":True,"packages":True}
-        # )
-        # log.info(f"Found {len(new_orders)} new orders.")
-        log.info(f"Fetched 0 new orders.")
-        # # pm == PackageMovement
-        # for pm in new_orders:
-        #     process_order.delay(pm["ZoneID"],pm["PackageID"])
-            
+        new_orders = await PackageMovement.prisma().find_many(
+            where={
+                "zones": {
+                    "is": {
+                        "zoneType": "DropZoneIn"
+                    }
+                }
+            },
+            include={"zones": True, "packages": True}
+        )
+        log.info(f"arq: Found {len(new_orders)} new orders.")
+        for pm in new_orders:
+            await redis.enqueue_job('process_order',zone_id = pm["ZoneID"],package_id = pm["PackageID"])
     except Exception as e:
-        log.info(f"Error checking for new orders: {e}")
+        log.error(f"arq: Error checking for new orders: {e}")
 
 # create the taskqueue functions ===========================================================
+

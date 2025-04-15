@@ -1,22 +1,18 @@
 import logging
 import os
 import random
-import pprint
 import httpx
 from enum import Enum
 
-from fastapi import APIRouter, Query, HTTPException
+from fastapi import APIRouter, Query, HTTPException , Request , Depends
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
-import prisma
-from celery_tasks import tasks
 from prisma.models import Robots, Paths, Zones , PackageMovement , Packages , OrderMovement
 from typing import Annotated, List
 from faker import Faker
 
 from map_gen.MapPlotter import MapPlotter 
 from map_gen.config import WIDTH , HEIGHT , TILE_SIZE
-
 
 router = APIRouter(prefix="/frontend", tags=["Frontend"])
 log = logging.getLogger(__name__)
@@ -173,7 +169,6 @@ async def get_map_warehouse():
     mp.draw_centers()
     mp.save_map()
 
-
     return FileResponse(path=path_to_map)
 
 
@@ -213,14 +208,15 @@ async def enter_zone(zone_id: int,courrier_id: int = 1):
     """
     Mark a zone as entered
     """
-    # ealry fails to prevent the worker from entering a unavailable zone
+    # early fails to prevent the worker from entering a unavailable zone
     zone = await Zones.prisma().find_unique(where={"zoneID": zone_id})
     if not zone:
+        log.exception(f"Zone {zone_id} not found")
         raise HTTPException(status_code=404, detail="Zone not found")
     if not zone.zoneAvailable:
+        log.exception(f"Zone {zone_id} not available")
         raise HTTPException(status_code=400, detail="Zone is not available")
     
-
     # --- !!! NEEDS TO BE REPLACED WITH ACTUAL URL and COURRIER ID !!! --- #
     try:
         # REAL
@@ -231,7 +227,7 @@ async def enter_zone(zone_id: int,courrier_id: int = 1):
         packages_fetched = fetch_fake_remote_packagedata_from_AD_team(courrier_id)
 
     except Exception as e:
-        log.info(f"AD Server unresponsive. Please try again later... \n arguments => {e.args}")
+        log.exception(f"AD Server unresponsive. Please try again later... \n arguments => {e.args}")
         raise HTTPException(status_code=500, detail="AD Server unresponsive")
     
     # --- !!! NEEDS TO BE REPLACED WITH ACTUAL URL and COURRIER ID !!! --- #
@@ -267,7 +263,7 @@ async def enter_zone(zone_id: int,courrier_id: int = 1):
         )
 
     except Exception as e:
-        log.info(f"AI Server encountered some error when trying to insert the fetched data {e}")
+        log.exception(f"AI Server encountered some error when trying to insert the fetched data {e}")
         raise HTTPException(status_code=500, detail="AI Server encountered some error when trying to insert the fetched data")
 
     try:
@@ -276,10 +272,14 @@ async def enter_zone(zone_id: int,courrier_id: int = 1):
         await Zones.prisma().update(where={"zoneID": zone_id}, data={"zoneAvailable": False})
     
     except Exception as e:
-        log.info(f"AI Server encountered some error when trying to update the zone {e}")
+        log.exception(f"AI Server encountered some error when trying to update the zone {e}")
         raise HTTPException(status_code=500, detail="AI Server encountered some error when trying to update the zone")
 
-    return {"status": "success"}
+    # 5) finally we need to return something to the user 
+    # so that the warehouse worker and courrier can move on 
+    # the job for ARQ to handle will be created later on because of the cron job we have running
+    return {"succes" : "Packages have registered"}
+
 
 
 @router.patch("/zone/{zone_id}/exit")

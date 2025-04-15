@@ -28,6 +28,7 @@ model Robots {
   robotStatus    Boolean         @default(true)
   robotType      String          @default("jetank")
   robotNamespace String
+  robotAvailable Boolean         @default(true)
   
   OrderMovement  OrderMovement[]
 }

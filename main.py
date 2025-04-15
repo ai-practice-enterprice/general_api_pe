@@ -1,34 +1,30 @@
-import os
 import pkgutil
 import importlib
 import routers
-import asyncio
-import threading
 from typing import AsyncIterator, Annotated
 from dotenv import load_dotenv
 
 from contextlib import asynccontextmanager
 
-from celery import Celery
 from prisma import Prisma
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-import logging
-from logging.handlers import TimedRotatingFileHandler
-
 # contains all URL configurations 
-from config import ORIGINS , CELERY_BROKER_URL , CELERY_RESULT_BACKEND
+from config import ORIGINS , ARQ_REDIS_SETTINGS
 
 # contains all functions to generate fake DB
 from database.push_data import push_fake_data_to_db
 
 from map_gen.config import MAP
- 
+
+from utils.logger import APILogger
+
 # loads env variables (can be implemented or said later on to increase security (such as passwords and other env variables))
 load_dotenv(override=True)
 
+log = APILogger(name=__package__)
 
 # FastAPI (https://realpython.com/fastapi-python-web-apis/)
 # uses events or a lifespan parameter to handle it's runtime logic before booting and after shutdown
@@ -36,6 +32,8 @@ load_dotenv(override=True)
 # https://fastapi.tiangolo.com/advanced/events/#async-context-manager  
 @asynccontextmanager
 async def lifespan(_) -> AsyncIterator[None]:
+    log.info("Starting up")
+
     # Prisma requires a client. The client is a auto-generated and type-safe query builder that's tailored to your data. (as stated in the docs : https://www.prisma.io/docs/orm/prisma-client/setup-and-configuration/introduction)
     # the Prisma client requires a schema file (usually : schema.prisma) which is a file that defines: 
     # - the "models" (tables in your DB) , 
@@ -43,13 +41,14 @@ async def lifespan(_) -> AsyncIterator[None]:
     # - and your generator (which is your DB provider) 
     # Once the prisma file is made and Prisma is INSTALLED you  can run "prisma generate" in the root of the directory 
     # You can also run "prisma studio" which offers a GUI to the database for developement
+    log.info("Starting up : connecting with Prisma query engine...")
     prisma = Prisma(auto_register=True)
-
-    log.info("Starting up")
     await prisma.connect()
+
     # add fake data to DB =====================================================
+    log.info("Starting up : pushing fake data to DB...")
     await push_fake_data_to_db(
-        push_packages = True,
+        push_packages = False,
         push_zones = True,
         push_robots = True,
         push_paths = True,
@@ -63,6 +62,7 @@ async def lifespan(_) -> AsyncIterator[None]:
 
     yield
     log.info("Shutting down")
+    log.info("Shutting down : Prisma query engine")
     await prisma.disconnect()
 
 # Create main app ===================================================== 
@@ -78,41 +78,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
 # Create main app ===================================================== 
-
-
-
-# Set up logging =====================================================
-log = logging.getLogger(__package__)
-log.setLevel(logging.INFO)
-
-# Ensure the logs directory exists
-log_dir = 'logs'
-if not os.path.exists(log_dir):
-    os.makedirs(log_dir)
-
-# Set up log handlers and formatters
-formatter = logging.Formatter(
-    '%(levelname)s:%(asctime)s:%(name)s:%(message)s'
-)
-
-file_handler = TimedRotatingFileHandler(
-    os.path.join(log_dir, 'info.log'),
-    when='midnight',
-    interval=1,
-    backupCount=10
-)
-file_handler.setFormatter(formatter)
-log.addHandler(file_handler)
-
-# Add a stream handler for console output
-stream_handler = logging.StreamHandler()
-stream_handler.setFormatter(formatter)
-log.addHandler(stream_handler)
-# Set up logging =====================================================
-
 
 
 # add routers =====================================================

@@ -4,9 +4,20 @@ ROS2_SERVER_PUBLISHER_URL = "http://bsu-ros-server:8003"
 ROS2_SERVER_SUBSCRIBER_URL = "http://bsu-ros-server:8003"
 
 # https://medium.com/@akshayjain.developer/connect-redis-with-authentication-using-python-5be3c6af59b9
-# => CELERY_BROKER_URL = 'redis://<username>:<password>@<hostname>:<port>/<db_number>'
-CELERY_BROKER_URL = "redis://:pwdAIteamREDIScontainer@bsu-redis:6379/0"
-CELERY_RESULT_BACKEND = "redis://:pwdAIteamREDIScontainer@bsu-redis:6379/0"
+# => REDIS_URL = 'redis://<username>:<password>@<hostname>:<port>/<db_number>'
+REDIS_URL = "redis://:pwdAIteamREDIScontainer@bsu-redis:6379/0"
+ARQ_REDIS_URL = "bsu-redis"
+ARQ_REDIS_DATABASE = 0
+ARQ_REDIS_PASSWORD = "pwdAIteamREDIScontainer"
+ARQ_REDIS_PORT = 6379
+
+from arq.connections import RedisSettings
+ARQ_REDIS_SETTINGS = RedisSettings(
+    host=ARQ_REDIS_URL,
+    password=ARQ_REDIS_PASSWORD,
+    database=ARQ_REDIS_DATABASE,
+    port=ARQ_REDIS_PORT,
+)
 
 # for some reasons (i don't know why) each python library that connects to a database
 # uses a different URL pattern to connect to a certain database. Here below i provide the ones for a MySQL server
