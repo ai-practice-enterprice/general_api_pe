@@ -1,13 +1,11 @@
 import logging
 import os
 import random
-import httpx
-from enum import Enum
 
-from fastapi import APIRouter, Query, HTTPException , Request , Depends
+from fastapi import APIRouter, Query, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
-from prisma.models import Robots, Paths, Zones , PackageMovement , Packages , OrderMovement
+from prisma.models import Robots, Paths, Zones, PackageMovement, Packages
 from typing import Annotated, List
 from faker import Faker
 
@@ -17,14 +15,11 @@ from map_gen.config import WIDTH , HEIGHT , TILE_SIZE
 router = APIRouter(prefix="/frontend", tags=["Frontend"])
 log = logging.getLogger(__name__)
 
-# ======================== API fake AD team DATABASE ======================== #
-
 
 # THIS IS A TEMP FUNC SO CHANGES ARE ALLOWED TO INCREASE REALASTIC BEHAVIOUR (such as: DB conn failed , courrier missing , no data fetched , etc...)
 def fetch_fake_remote_packagedata_from_AD_team(courrier_id: int,courrier_max_id: int = 10):
-
     # 1% chance of error
-    if random.randint(1,1000) == 1:
+    if random.randint(1, 1000) == 1:
         raise Exception("Could not connect...")
 
     # courier does not exist
@@ -54,6 +49,7 @@ def fetch_fake_remote_packagedata_from_AD_team(courrier_id: int,courrier_max_id:
     
     return fetched_data
 
+
 # ======================== models for API request (NOT for database => see schema.prisma) ======================== #
 
 class RobotCreationRequest(BaseModel):
@@ -68,6 +64,7 @@ class ZoneCreationRequest(BaseModel):
     zone_description: str = Field(alias="zoneDescription")
     zone_available: bool = Field(alias="zoneAvailable")
     zone_check: bool = Field(alias="zoneCheck")
+
 
 class PathCreationRequest(BaseModel):
     path_number: int = Field(alias="pathNumber")
@@ -103,6 +100,7 @@ async def read_robots():
     log.info(f"{robots}")
     return robots
 
+
 @router.patch("/robot/{robot_id}/toggle")
 async def update_robot(robot_id: int):
     """
@@ -118,10 +116,6 @@ async def update_robot(robot_id: int):
     return {"status": "success"}
 
 
-
-
-
-
 # ======================== API endpoints for zone data ======================== #
 @router.get("/zone/all")
 async def read_zones():
@@ -131,25 +125,24 @@ async def read_zones():
     zones = await Zones.prisma().find_many()
     return zones
 
+
 @router.get("/zone/all", response_model=list[Zones])
-async def read_zones_of_type(
-    zone_type: Annotated[str, Query()] = "DropZoneIn"
-):
+async def read_zones_of_type(zone_type: Annotated[str, Query()] = "DropZoneIn"):
     """
     Fetch all zone of certain type (e.g.: RobotStation , DropZoneIn , ErrorZone)
     """
     zones = await Zones.prisma().find_many(where={"zoneType" : zone_type})
     return zones
 
+
 @router.patch("/zone/data/{zone_id}")
-async def read_single_zone(
-    zone_id: int
-):
+async def read_single_zone(zone_id: int):
     """
     Fetch data of 1 zone
     """
     zone = await Zones.prisma().find_unique(where={"zoneID" : zone_id})
     return zone
+
 
 @router.post("/zone/map_warehouse",responses={200 : {"content": {"image/xml+svg": {}},}})
 async def get_map_warehouse():
@@ -183,7 +176,7 @@ async def create_zone(zone: ZoneCreationRequest):
         "zoneType": zone.zone_type,
         "zoneDescription": zone.zone_description,
         "zoneAvailable": zone.zone_available,
-        "zoneCheck": zone.zone_check
+        # "zoneCheck": zone.zone_check
     })
     return {"status": "success"}
 
@@ -204,7 +197,7 @@ async def toggle_zone_availability(zone_id: int):
 
 
 @router.patch("/zone/{zone_id}/enter")
-async def enter_zone(zone_id: int,courrier_id: int = 1):
+async def enter_zone(zone_id: int, courrier_id: int = 1):
     """
     Mark a zone as entered
     """
@@ -267,7 +260,6 @@ async def enter_zone(zone_id: int,courrier_id: int = 1):
         raise HTTPException(status_code=500, detail="AI Server encountered some error when trying to insert the fetched data")
 
     try:
-
         # 4) here we update the zone
         await Zones.prisma().update(where={"zoneID": zone_id}, data={"zoneAvailable": False})
     
@@ -279,7 +271,6 @@ async def enter_zone(zone_id: int,courrier_id: int = 1):
     # so that the warehouse worker and courrier can move on 
     # the job for ARQ to handle will be created later on because of the cron job we have running
     return {"succes" : "Packages have registered"}
-
 
 
 @router.patch("/zone/{zone_id}/exit")
@@ -297,10 +288,6 @@ async def exit_zone(zone_id: int):
     await Zones.prisma().update(where={"zoneID": zone_id}, data={"zoneAvailable": False})
 
     return {"status": "success"}
-
-
-
-
 
 
 # ======================== API endpoints for path data ======================== #

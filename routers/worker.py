@@ -2,16 +2,12 @@ import logging
 from fastapi import APIRouter
 
 
-
-# ======================== API endpoints for workers ======================== #
 router = APIRouter(prefix="/workers", tags=["Worker Data"])
 log = logging.getLogger(__name__)
 
+
 @router.get("/arrival", response_model=str)
-def worker_arrival_confirmation(
-    worker_id: int,
-    zone_id: int,
-):
+def worker_arrival_confirmation(worker_id: int,zone_id: int):
     """
     Confirms that the driver has arrived at the warehouse and assigns an available load-out zone.
     In this example, load-out zones in the database are marked with 'zoneType' equal to "loadOut"
@@ -23,10 +19,7 @@ def worker_arrival_confirmation(
     
 
 @router.get("/departure",response_model=str)
-def get_worker_departure_confirmation(
-    worker_id: int,
-    zone_id: int,
-):
+def get_worker_departure_confirmation(worker_id: int, zone_id: int):
     """
     Get a Okay response from the server, when departing
     """
