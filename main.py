@@ -89,4 +89,3 @@ for module_info in pkgutil.iter_modules(routers.__path__):
         log.info(f"Registering routes from {module_info.name}")
         app.include_router(module.router)
 # add routers =====================================================
-

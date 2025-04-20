@@ -13,7 +13,6 @@ from faker_airtravel import AirTravelProvider
 from models import (
     Customer,
     Package,
-    Address,
     Airline,
     Airplane,
     Airport,
@@ -22,17 +21,10 @@ from models import (
     Location,
 )
 
-# Faker configuration (providers) ==========================================================================
-# ...
-
-
-# API endpoints setup ==========================================================================
-
 router = APIRouter(prefix="/fake", tags=["Fake Data"])
 AvailableLocales = Enum("AvailableLocales", {loc: loc for loc in AVAILABLE_LOCALES})
 log = logging.getLogger(__name__)
 
-# API endpoints for fake data ==========================================================================
 
 @router.get("/customers", response_model=list[Customer])
 def get_fake_customer_data(
@@ -57,7 +49,7 @@ def get_fake_customer_data(
         for _ in range(limit)
     ]
 
-# ===========================================================================
+
 @router.get("/packages", response_model=list[Package])
 def get_fake_parcel_data(
     limit: Annotated[int, Query(ge=1, le=100)] = 1,
@@ -84,7 +76,7 @@ def get_fake_parcel_data(
         for _ in range(limit)
     ]
 
-# ===========================================================================
+
 @router.get("/locations", response_model=list[Location])
 def get_fake_locations_data(
     limit: Annotated[int, Query(ge=1, le=100)] = 1,
@@ -110,7 +102,7 @@ def get_fake_locations_data(
         for _ in range(limit)
     ]
 
-# ===========================================================================
+
 @router.get("/flights", response_model=list[Flight])
 def get_fake_flights_data(
     limit: Annotated[int, Query(ge=1, le=100)] = 1,
@@ -160,7 +152,7 @@ def get_fake_flights_data(
 
     return fake_flight_data
 
-# ===========================================================================
+
 @router.get("/cities", response_model=list[City])
 def get_fake_cities_data(
     limit: Annotated[int, Query(ge=1, le=100)] = 1,
@@ -182,7 +174,7 @@ def get_fake_cities_data(
         for _ in range(limit)
     ]
 
-# ===========================================================================
+
 @router.get("/airplanes", response_model=list[Airplane])
 def get_fake_airplanes_data(
     limit: Annotated[int, Query(ge=1, le=100)] = 1,
@@ -206,7 +198,8 @@ def get_fake_airplanes_data(
         )
         for _ in range(limit)
     ]
-# ===========================================================================
+
+
 @router.get("/airports", response_model=list[Airport])
 def get_fake_airports_data(
     limit: Annotated[int, Query(ge=1, le=100)] = 1,
@@ -216,10 +209,8 @@ def get_fake_airports_data(
     Get fake data for testing purposes based on the provided limit and locale.
     """
 
-    # NOTE : I can't seem to add providers for some reason
     fake = Faker(locale=locale.value)
     fake.add_provider(AirTravelProvider)
-    
 
     log.info(f"Generating {limit} fake airports with locale {locale}")
 
@@ -228,7 +219,7 @@ def get_fake_airports_data(
         for _ in range(limit)
     ]
 
-# ===========================================================================
+
 @router.get("/airlines", response_model=list[Airline])
 def get_fake_airlines_data(
     limit: Annotated[int, Query(ge=1, le=100)] = 1,

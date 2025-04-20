@@ -1,13 +1,11 @@
 import logging
 import os
 import random
-import httpx
-from enum import Enum
 
-from fastapi import APIRouter, Query, HTTPException , Request , Depends
+from fastapi import APIRouter, Query, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
-from prisma.models import Robots, Paths, Zones , PackageMovement , Packages , OrderMovement , ZoneTypes
+from prisma.models import Robots, Paths, Zones, PackageMovement, Packages
 from typing import Annotated, List
 from faker import Faker
 
