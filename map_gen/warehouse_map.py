@@ -23,9 +23,7 @@ mp = MapPlotter(
     filename=os.path.join(script_path,"map.svg"),  
 )
 
-mp.draw_tiles()
-mp.draw_connections()
-mp.draw_centers()
+mp.draw_nodes()
 mp.save_map()
 
 

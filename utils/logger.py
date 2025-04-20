@@ -1,23 +1,19 @@
+# Set up logging =====================================================
 import logging
-from logging import Logger
 from logging.handlers import TimedRotatingFileHandler
 import os
 
-# Set up logging =====================================================
-class APILogger(Logger):
-    def __init__(self, name, level = logging.INFO):
-        super().__init__(name, level)
+def setup_logger(name: str = 'APILogger', level: int = logging.INFO) -> logging.Logger:
+    log_dir = 'logs'
+    os.makedirs(log_dir, exist_ok=True)
 
-        # Ensure the logs directory exists
-        log_dir = 'logs'
-        if not os.path.exists(log_dir):
-            os.makedirs(log_dir)
+    formatter = logging.Formatter('%(levelname)s:%(asctime)s:%(name)s:%(message)s')
 
-        # Set up log handlers and formatters
-        formatter = logging.Formatter(
-            '%(levelname)s:%(asctime)s:%(name)s:%(message)s'
-        )
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
 
+    if not logger.handlers:
+        # File handler
         file_handler = TimedRotatingFileHandler(
             os.path.join(log_dir, 'info.log'),
             when='midnight',
@@ -25,11 +21,13 @@ class APILogger(Logger):
             backupCount=10
         )
         file_handler.setFormatter(formatter)
-        self.addHandler(file_handler)
+        logger.addHandler(file_handler)
 
-        # Add a stream handler for console output
+        # Console handler
         stream_handler = logging.StreamHandler()
         stream_handler.setFormatter(formatter)
-        self.addHandler(stream_handler)
+        logger.addHandler(stream_handler)
+
+    return logger
 
 # Set up logging =====================================================

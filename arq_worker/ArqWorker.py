@@ -11,20 +11,19 @@ from prisma import Prisma
 from fastapi import HTTPException
 
 from typing import Any
-import logging 
 from httpx import AsyncClient
 
-from utils.logger import APILogger
+from logging import Logger 
+from utils.logger import setup_logger
+
 
 # ======================== ARQ coroutines to run at certain events ======================== #
 # ctx == context is dictionary that will be passed around that the worker requires
 # it is the 1st variable in any function executed by a ARQ worker 
 async def startup(ctx: dict[Any, Any]):
     """Runs during worker start-up to set up the worker context."""
-    ctx["logger"] = APILogger(
-        name=__name__,
-        level=logging.INFO
-    )
+    ctx["logger"] = setup_logger(__name__)
+
     ctx["logger"].info("------------ Worker start up running ------------")
     # The instance key uniquely identifies this worker in logs
     async_http_client = AsyncClient()
@@ -43,7 +42,7 @@ async def startup(ctx: dict[Any, Any]):
 
 async def shutdown(ctx: dict[Any, Any]):
     """Runs during worker shutdown to cleanup resources."""
-    log: APILogger = ctx["logger"]
+    log: Logger = ctx["logger"]
     async_http_client: AsyncClient = ctx["http_client"]
     prisma_query_engine: Prisma = ctx["prisma"]
     arq_redis: ArqRedis = ctx["arq_redis"]

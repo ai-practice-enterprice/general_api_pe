@@ -19,12 +19,12 @@ from database.push_data import push_fake_data_to_db
 
 from map_gen.config import MAP
 
-from utils.logger import APILogger
+from utils.logger import setup_logger
 
 # loads env variables (can be implemented or said later on to increase security (such as passwords and other env variables))
 load_dotenv(override=True)
 
-log = APILogger(name=__package__)
+log = setup_logger(__name__)
 
 # FastAPI (https://realpython.com/fastapi-python-web-apis/)
 # uses events or a lifespan parameter to handle it's runtime logic before booting and after shutdown
@@ -48,14 +48,14 @@ async def lifespan(_) -> AsyncIterator[None]:
     # add fake data to DB =====================================================
     log.info("Starting up : pushing fake data to DB...")
     await push_fake_data_to_db(
-        push_packages = False,
+        push_packages = True,
         push_zones = True,
         push_robots = True,
         push_paths = True,
         number_of_records = {
-            "packages_rec_nbr"  : 100,
+            "packages_rec_starting_nbr"  : 100,
             "zones_map"         : MAP,
-            "robots_rec_nbr"    : 5,
+            "robots_rec_nbr"    : 10,
         }
     )
     # add fake data to DB =====================================================

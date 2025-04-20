@@ -1,4 +1,4 @@
-from prisma.models import Robots, Paths, Zones , PackageMovement , Packages , OrderMovement
+from prisma.models import Robots, Paths, Zones , PackageMovement , Packages , OrderMovement , ZoneTypes
 from fastapi import Depends
 import logging
 from logging import Logger
@@ -80,13 +80,21 @@ async def check_for_package_to_move(ctx: dict[Any, Any]):
         log.info("ARQ : Checking for packages to move")
         new_orders = await PackageMovement.prisma().find_many(
             where={
-                "zones": {
-                    "is": {
-                        "zoneType": "DropZoneIn"
+                'zones': {
+                    'zoneTypes': {
+                        'zoneTypeName': 'DropZoneIn'
                     }
                 }
             },
-            include={"zones": True, "packages": True}
+            include={
+                "packages": True,
+                "zones" : True,
+                "zones": {
+                    "include" : {
+                        "zoneTypes" : True
+                    }
+                }, 
+            }
         )
         
         log.info(f"ARQ : Found {len(new_orders)} new orders.")
