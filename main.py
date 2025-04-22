@@ -1,7 +1,10 @@
 import pkgutil
 import importlib
+from datetime import datetime
+
+import zenoh.zenoh
 import routers
-from typing import AsyncIterator, Annotated
+from typing import AsyncIterator
 from dotenv import load_dotenv
 
 from contextlib import asynccontextmanager
@@ -15,16 +18,19 @@ from fastapi.middleware.cors import CORSMiddleware
 from config import ORIGINS , ARQ_REDIS_SETTINGS
 
 # contains all functions to generate fake DB
-from database.push_data import push_fake_data_to_db
+from database.push_data import FakeDataGenerator
 
 from map_gen.config import MAP
 
 from utils.logger import setup_logger
 
+import zenoh
+
 # loads env variables (can be implemented or said later on to increase security (such as passwords and other env variables))
 load_dotenv(override=True)
 
 log = setup_logger(__name__)
+zenoh_session = None
 
 # FastAPI (https://realpython.com/fastapi-python-web-apis/)
 # uses events or a lifespan parameter to handle it's runtime logic before booting and after shutdown
@@ -47,19 +53,34 @@ async def lifespan(_) -> AsyncIterator[None]:
 
     # add fake data to DB =====================================================
     log.info("Starting up : pushing fake data to DB...")
-    await push_fake_data_to_db(
+    fake_date_gen = FakeDataGenerator(
         push_packages = True,
         push_zones = True,
         push_robots = True,
         push_paths = True,
-        number_of_records = {
-            "packages_rec_starting_nbr"  : 100,
-            "zones_map"         : MAP,
-            "robots_rec_nbr"    : 10,
+        write_to_file = True,
+        read_from_file = True,
+        file_type = "json",
+        additional_configuration = {
+            "package_starting_records"  : 80,
+            "package_start_date"         : datetime(year=2024,month=1,day=1),
+            "package_end_date"           : datetime.now(),
+            "package_trends"             : (
+                [-5, 0, 7, 15, 25, 38, 54],
+                [2, 3, 4, 5, 6, 8, 9],
+                [-8, -6, -5, -4, -3, -1, 0],
+                [-50, -40, -28, -15, 0, 18, 40],
+            ),
+            "zones_map"                  : MAP,
+            "robots_number_of_records"   : 6,
+            "only_jetank"                : False,
+            "only_jetracer"              : False,
+            "only_jetank_hiwonder"       : False,
         }
     )
+    await fake_date_gen.push()
     # add fake data to DB =====================================================
-
+    
     yield
     log.info("Shutting down")
     log.info("Shutting down : Prisma query engine")
